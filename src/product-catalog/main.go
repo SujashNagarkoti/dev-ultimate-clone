@@ -18,6 +18,8 @@ import (
 	"syscall"
 	"time"
 
+
+	
 	"github.com/sirupsen/logrus"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -316,6 +318,7 @@ func createClient(ctx context.Context, svcAddr string) (*grpc.ClientConn, error)
 	return grpc.DialContext(ctx, svcAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+
 	)
 }
 
