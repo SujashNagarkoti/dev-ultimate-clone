@@ -196,6 +196,7 @@ func readProductFiles() ([]*pb.Product, error) {
 				return nil, err
 			}
 			jsonFiles = append(jsonFiles, info)
+			
 		}
 	}
 
