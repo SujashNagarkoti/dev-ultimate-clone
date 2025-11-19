@@ -7,6 +7,7 @@ on:
       - main
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
 
@@ -29,7 +30,7 @@ jobs:
         run: |
           cd src/product-catalog
           go test ./...
-  
+
   code-quality:
     runs-on: ubuntu-latest
 
@@ -46,28 +47,26 @@ jobs:
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.55.2
-          run: golangci-lint run
           working-directory: src/product-catalog
 
   docker:
     runs-on: ubuntu-latest
-
     needs: build
 
     steps:
       - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Install Docker
-        uses: docker/setup-buildx-action@v1
-      
-      - name: Login to Docker
+      - name: Install Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Docker Push
+      - name: Build & Push Docker Image
         uses: docker/build-push-action@v6
         with:
           context: src/product-catalog
@@ -85,7 +84,7 @@ jobs:
         with:
           token: ${{ secrets.TOKEN }}
 
-      - name: Update tag in kubernetes deployment manifest
+      - name: Update tag in Kubernetes deployment manifest
         run: |
           sed -i "s|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/product-catalog:${{ github.run_id }}|" kubernetes/productcatalog/deploy.yaml
 
@@ -94,8 +93,5 @@ jobs:
           git config --global user.email "sujash.nagarkoti803@gmail.com"
           git config --global user.name "SujashNagarkoti"
           git add kubernetes/productcatalog/deploy.yaml
-          git commit -m "[CI]: Update product catalog image tag"
+          git commit -m "[CI]: Update product catalog image tag" || echo "No changes to commit"
           git push origin HEAD:main -f
-
-
-        
