@@ -18,6 +18,8 @@ import (
 	"syscall"
 	"time"
 
+
+	
 	"github.com/sirupsen/logrus"
 
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -194,6 +196,7 @@ func readProductFiles() ([]*pb.Product, error) {
 				return nil, err
 			}
 			jsonFiles = append(jsonFiles, info)
+			
 		}
 	}
 
@@ -250,6 +253,8 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 		attribute.String("app.product.id", req.Id),
 	)
 
+
+
 	// GetProduct will fail on a specific product when feature flag is enabled
 	if p.checkProductFailure(ctx, req.Id) {
 		msg := fmt.Sprintf("Error: Product Catalog Fail Feature Flag Enabled")
@@ -305,6 +310,7 @@ func (p *productCatalog) checkProductFailure(ctx context.Context, id string) boo
 	client := openfeature.NewClient("productCatalog")
 	failureEnabled, _ := client.BooleanValue(
 		ctx, "productCatalogFailure", false, openfeature.EvaluationContext{},
+		
 	)
 	return failureEnabled
 }
@@ -313,8 +319,11 @@ func createClient(ctx context.Context, svcAddr string) (*grpc.ClientConn, error)
 	return grpc.DialContext(ctx, svcAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
+
 	)
 }
+
+
 
 
 
